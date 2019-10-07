@@ -1,0 +1,68 @@
+---
+title: "Project 2 Example 3"
+author: "Sadia Perveen"
+date: "10/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("stringr", repos = "http://cran.us.r-project.org")
+install.packages("tidyr", repos = "http://cran.us.r-project.org")
+install.packages("dplyr", repos = "http://cran.us.r-project.org")
+
+require(tidyr)
+require(dplyr)
+require(stringr)
+```
+Read in file from source.
+```{r}
+MALARIA <- readr::read_csv("https://raw.githubusercontent.com/sadia-perveen/Project-2/master/Child-health_malaria_CoD_Feb-2018_WHO_MCEE_-1.csv")
+head(MALARIA)
+
+```
+Data cleanup:
+1. Get rid on first column, its not needed.
+2. Update values x2 and x3 row 4 based values in row 5.
+3. Drop all columns/rows with na's using drop_na function.
+4. Make the first row values in the dataset as the column names.
+5. Get rid of 1st two rows using slice.
+6. Replace all '-' with 0 using mutate_if function.
+```{r}
+MALARIA <- select(MALARIA, -c(X1))
+
+MALARIA$X2[4] <- MALARIA$X2[5]
+MALARIA$X3[4] <- MALARIA$X3[5]
+                            
+MALARIA <- MALARIA %>% drop_na()
+
+names(MALARIA) <- as.character(unlist(MALARIA[1,]))
+
+MALARIA <- slice(MALARIA, 3:n())
+
+MALARIA <- mutate_if(MALARIA, 
+                is.character, 
+                str_replace_all, pattern = "-", replacement = "0")
+```
+
+Generate some comparison data, in this case total deaths neanatal and post neonatal based on country for all years. Dividing totals by 10000 to make the numbers readable. 
+```{r}
+DEATHS_COUNTRY <- MALARIA %>%
+  group_by(`Country/area name`) %>%
+  summarise(neoNatal = sum(as.integer(gsub(",", "", `Total Neonatal deaths`)))/10000, 
+            postNeoNatal = sum(as.integer(gsub(",", "", `Total Post-Neonatal deaths`)))/10000) %>%
+  arrange(`Country/area name`)
+```
+
+Plot the data in a barplot.
+```{r}
+barplot(t(as.matrix(DEATHS_COUNTRY[, 2:3])),
+        beside = TRUE,
+        names.arg = DEATHS_COUNTRY$`Country/area name`,
+        legend.text = TRUE,
+        las=2, 
+        cex.names=.5,
+        main = "Deaths NeoNatal/Post Neo Natal By Contry (2000-2016)",
+        xlab = "Countries",
+        ylab = "# Deaths/10000")
+```

@@ -1,0 +1,70 @@
+---
+title: "Project_2_Example_1"
+author: "Sadia Perveen"
+date: "10/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("stringr", repos = "http://cran.us.r-project.org")
+install.packages("tidyr", repos = "http://cran.us.r-project.org")
+install.packages("dplyr", repos = "http://cran.us.r-project.org")
+
+require(tidyr)
+require(dplyr)
+require(stringr)
+```
+Read in the data from source.
+```{r, warning=FALSE}
+ELAMAT <- readr::read_csv("https://raw.githubusercontent.com/sadia-perveen/Project-2/master/ELAMAT1.csv")
+```
+
+Order data by the mean score in descending order.
+```{r, warning=FALSE}
+AVG_SCORE <- dplyr::arrange(ELAMAT, desc(as.numeric(MEAN_SCALE_SCORE)))
+AVG_SCORE
+```
+
+Filter out data that has either a Male or Female listing in SUBGROUP_NAME column and stor eit in ALL_GENDER data frame.
+```{r}
+ALL_GENDER <- dplyr::filter(ELAMAT, SUBGROUP_NAME == "Female" | SUBGROUP_NAME == "Male")
+ALL_GENDER
+```
+
+Arrange data in the ALL_GENDER data frame by MEAN_SCALE_SCORE and store it in AVG_SCORE_GEN data frame.
+```{r}
+AVG_SCORE_GEN <- dplyr::arrange(ALL_GENDER, desc(as.numeric(MEAN_SCALE_SCORE)))
+AVG_SCORE_GEN
+```
+
+Filter out all Asian or Pacific Islander students and store it in ALL_ASIAN data frame.
+Then order the data by MEAN_SCALE_SCORE column.
+```{r}
+ALL_ASIAN <- dplyr::filter(ELAMAT, SUBGROUP_NAME == "Asian or Pacific Islander")
+AVG_SCORE_ASN <- dplyr::arrange(ALL_ASIAN, desc(MEAN_SCALE_SCORE))
+AVG_SCORE_ASN
+ALL_ASIAN
+```
+
+Filter data out based on SUBGROUP_NAME and NRC_DESC.
+```{r}
+ALL_STUDENTS <- dplyr::filter(ELAMAT, SUBGROUP_NAME == "All Students" &  NRC_DESC == "NYC")
+ALL_STUDENTS
+ALL_STUDENTS$MEAN_SCALE_SCORE
+```
+
+Generate a barplot based on L4_PCT and ITEM_DESC. 
+```{r}
+barplot(as.numeric(gsub("%", "", ALL_STUDENTS$L4_PCT)), names = ALL_STUDENTS$ITEM_DESC,
+        xlab = "Students", ylab = "Percentage",
+        main = "PERCENT OF STUDENTS IN LEVEL 4", las=2, cex.names=.5, col=c("darkblue","green"))
+```
+
+
+Generate a barplot based on L1_PCT and ITEM_DESC. 
+```{r}
+barplot(as.numeric(gsub("%", "", ALL_STUDENTS$L1_PCT)), names = ALL_STUDENTS$ITEM_DESC,
+        xlab = "Students", ylab = "Percentage",
+        main = "PERCENT OF STUDENTS IN LEVEL 1", las=2, cex.names=.5, col=c("orange","green"))
+```

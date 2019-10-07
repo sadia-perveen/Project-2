@@ -1,0 +1,80 @@
+---
+title: "Project 2 Example 2"
+author: "Sadia Perveen"
+date: "10/6/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("stringr", repos = "http://cran.us.r-project.org")
+install.packages("tidyr", repos = "http://cran.us.r-project.org")
+install.packages("dplyr", repos = "http://cran.us.r-project.org")
+
+require(tidyr)
+require(dplyr)
+require(stringr)
+```
+Read in the data from source.
+```{r, warning=FALSE}
+BIRTHS <- readr::read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/births/US_births_1994-2003_CDC_NCHS.csv")
+```
+
+Replace day_of_week with name of day instead of number. 
+```{r}
+BIRTHS <- dplyr::mutate(BIRTHS, day_of_week = replace(day_of_week, day_of_week == "1", "Monday"))
+BIRTHS <- dplyr::mutate(BIRTHS, day_of_week = replace(day_of_week, day_of_week == "2", "Tuesday"))
+BIRTHS <- dplyr::mutate(BIRTHS, day_of_week = replace(day_of_week, day_of_week == "3", "Wednesday"))
+BIRTHS <- dplyr::mutate(BIRTHS, day_of_week = replace(day_of_week, day_of_week == "4", "Thursday"))
+BIRTHS <- dplyr::mutate(BIRTHS, day_of_week = replace(day_of_week, day_of_week == "5", "Friday"))
+BIRTHS <- dplyr::mutate(BIRTHS, day_of_week = replace(day_of_week, day_of_week == "6", "Saturday"))
+BIRTHS <- dplyr::mutate(BIRTHS, day_of_week = replace(day_of_week, day_of_week == "7", "Sunday"))
+BIRTHS
+
+```
+
+Add a column in the data to hold the name of the month, based on the number of the month.
+```{r}
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "1", "Janruary"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "2", "February"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "3", "March"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "4", "April"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "5", "May"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "6", "June"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "7", "July"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "8", "August"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "9", "September"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "10", "October"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "11", "November"))
+BIRTHS <- dplyr::mutate(BIRTHS, monthName = replace(month, month == "12", "December"))
+BIRTHS
+```
+
+Birth data arranged by the number of births, and stored in ARG_BIRTHS.
+```{r}
+ARG_BIRTHS <- dplyr::arrange(BIRTHS, desc(births))
+ARG_BIRTHS
+
+```
+
+Group birth data by each month in the over all dataset, and get the total number of births in those months. Then arrange the data by the month. Then plot the data.
+```{r}
+MONTHLY_BIRTHS <- BIRTHS %>%
+                  group_by(month) %>%
+                    summarise(monthlyBirths = sum(births)) %>%
+                    arrange(month)
+
+plot(MONTHLY_BIRTHS$monthlyBirths, type = "o", col = "red", xlab = "Month", ylab = "Number of births",
+     main = "NUMBER OF BIRTHS PER MONTH")
+```
+
+
+Group birth data based on each year, and sum the total births for that year.
+```{r}
+YEARLY_BIRTHS <- BIRTHS %>%
+  group_by(year) %>%
+  summarise(yearlyBirths = sum(year)) %>%
+  arrange(year)
+  
+YEARLY_BIRTHS
+```
